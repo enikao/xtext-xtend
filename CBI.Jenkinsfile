@@ -43,7 +43,7 @@ spec:
   }
   
   parameters {
-    choice(name: 'TARGET_PLATFORM', choices: ['oxygen', 'latest', 'r201812', 'r201809','r201903', 'photon'], description: 'Which Target Platform should be used?')
+    choice(name: 'TARGET_PLATFORM', choices: ['oxygen', 'latest', 'r201903', 'r201812', 'r201809','r201903', 'photon'], description: 'Which Target Platform should be used?')
   }
 
   options {
@@ -76,13 +76,14 @@ spec:
             currentBuild.displayName = "#${BUILD_NUMBER}(4.7)"
           }
         }
+        
         sh '''
             sed_inplace() {
                 if [[ "$OSTYPE" == "darwin"* ]]; then
                     sed -i '' "$@"
                 else
-                    sed -i "$@" 
-                fi    
+                    sed -i "$@"
+                fi
             }
             
             targetfiles="$(find releng -type f -iname '*.target')"
@@ -106,9 +107,7 @@ spec:
       stages { // TODO use of parallel { here kills Tycho process with OOM
         stage('Maven Plugin Build') {
           steps {
-            sh """
-              ./2-maven-plugin-build.sh -s /home/jenkins/.m2/settings.xml --local-repository=/home/jenkins/.m2/repository
-            """
+            sh "./2-maven-plugin-build.sh -s /home/jenkins/.m2/settings.xml --local-repository=/home/jenkins/.m2/repository"
             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
           } // END steps
         } // END stage
@@ -129,7 +128,7 @@ spec:
             step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/longrunningTest/*.xml'])
           }
         } // END stage
-      } // END parallel
+      } // END stages
     } // END stage
   } // END stages
 
