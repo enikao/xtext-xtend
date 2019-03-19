@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.xtend.core.tests.util.TemporaryFolder;
 import org.eclipse.xtend.core.xtend.XtendAnnotationType;
 import org.eclipse.xtend.core.xtend.XtendClass;
 import org.eclipse.xtend.core.xtend.XtendConstructor;
@@ -25,15 +26,16 @@ import org.eclipse.xtend.core.xtend.XtendFile;
 import org.eclipse.xtend.core.xtend.XtendFunction;
 import org.eclipse.xtend.core.xtend.XtendInterface;
 import org.eclipse.xtext.diagnostics.Severity;
-import org.eclipse.xtext.testing.InjectWith;
-import org.eclipse.xtend.core.tests.util.TemporaryFolder;
-import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
+import org.eclipse.xtext.testing.InjectWith;
+import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.util.CancelIndicator;
+import org.eclipse.xtext.util.JavaVersion;
 import org.eclipse.xtext.util.StringInputStream;
 import org.eclipse.xtext.validation.CheckMode;
 import org.eclipse.xtext.validation.Issue;
+import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -56,6 +58,8 @@ public abstract class AbstractXtendTestCase extends Assert {
 	
 	@Inject
 	private Provider<XtextResourceSet> resourceSetProvider;
+	
+	@Inject protected IGeneratorConfigProvider generatorConfigProvider;
 
 	protected XtendClass clazz(String string) throws Exception {
 		return (XtendClass) file(string).getXtendTypes().get(0);
@@ -67,6 +71,10 @@ public abstract class AbstractXtendTestCase extends Assert {
 	
 	protected XtendFile file(String string, boolean validate) throws Exception {
 		return file(string, validate, true);
+	}
+	
+	protected JavaVersion getJavaVersion() {
+		return JavaVersion.JAVA5;
 	}
 
 	protected XtendFile file(String string, boolean validate, boolean shouldBeSyntacticallyValid) throws Exception {

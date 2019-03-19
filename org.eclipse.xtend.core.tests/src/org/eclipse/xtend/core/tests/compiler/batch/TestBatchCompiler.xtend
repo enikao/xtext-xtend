@@ -62,6 +62,7 @@ class TestBatchCompiler {
 		batchCompiler.deleteTempDirectory = true
 		batchCompiler.useCurrentClassLoaderAsParent = true
 		batchCompiler.currentClassLoader = class.classLoader
+		batchCompiler.generateGeneratedAnnotation = true
 		new File(OUTPUT_DIRECTORY).mkdir
 		cleanFolder(new File(OUTPUT_DIRECTORY), null, true, false)
 		new File(OUTPUT_DIRECTORY_WITH_SPACES).mkdir
@@ -498,6 +499,7 @@ class TestBatchCompiler {
 		batchCompiler.generateGeneratedAnnotation = true
 		batchCompiler.sourcePath = "./batch-compiler-data/xtendClass"
 		assertTrue(batchCompiler.compile)
+		System.err.println((OUTPUT_DIRECTORY + "/XtendA.java").contents)
 		assertTrue((OUTPUT_DIRECTORY + "/XtendA.java").contents.contains("@Generated"))
 	}
 	
