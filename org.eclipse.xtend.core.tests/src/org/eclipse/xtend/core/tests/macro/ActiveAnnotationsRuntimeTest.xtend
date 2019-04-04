@@ -4,22 +4,22 @@ import com.google.common.io.Files
 import com.google.inject.Inject
 import com.google.inject.Provider
 import java.io.File
-import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.util.List
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtend.core.macro.AnnotationProcessor
 import org.eclipse.xtend.core.macro.declaration.CompilationUnitImpl
 import org.eclipse.xtend.core.tests.RuntimeInjectorProvider
+import org.eclipse.xtend.core.tests.util.TemporaryFolder
 import org.eclipse.xtend.core.validation.IssueCodes
 import org.eclipse.xtend.core.xtend.XtendFile
 import org.eclipse.xtend.core.xtend.XtendPackage
 import org.eclipse.xtext.diagnostics.Severity
-import org.eclipse.xtext.testing.InjectWith
-import org.eclipse.xtend.core.tests.util.TemporaryFolder
-import org.eclipse.xtext.testing.XtextRunner
-import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.resource.XtextResourceSet
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.Issue
@@ -66,7 +66,7 @@ class ActiveAnnotationsRuntimeTest extends AbstractReusableActiveAnnotationTests
 	protected def URI copyToDisk(String projectName, Pair<String,String> fileRepresentation) {
 		val file = new File(workspaceRoot, projectName+"/src/"+fileRepresentation.key)
 		file.parentFile.mkdirs
-		Files.asCharSink(file, Charset.defaultCharset).write(fileRepresentation.value)
+		Files.asCharSink(file, StandardCharsets.ISO_8859_1).write(fileRepresentation.value)
 		return URI.createFileURI(file.path)
 	}
 
@@ -104,11 +104,13 @@ class ActiveAnnotationsRuntimeTest extends AbstractReusableActiveAnnotationTests
 		]
 		
 		val macroResourceSet = resourceSetProvider.get
+		macroResourceSet.loadOptions.put(XtextResource.OPTION_ENCODING, StandardCharsets.ISO_8859_1.name)
 		ProjectConfigAdapter.install(macroResourceSet, macroProjectConfig)
 		macroResourceSet.classpathURIContext = getClass.classLoader
 		macroResourceSet.createResource(macroURI)
 		
 		val resourceSet = resourceSetProvider.get
+		resourceSet.loadOptions.put(XtextResource.OPTION_ENCODING, StandardCharsets.ISO_8859_1.name)
 		ProjectConfigAdapter.install(resourceSet, clientProjectConfig)
 		resourceSet.createResource(clientURI)
 		
