@@ -98,6 +98,12 @@ public abstract class AbstractXtendRenameRefactoringTest extends AbstractXtendUI
 		testHelper.tearDown();
 		super.tearDown();
 	}
+	
+	@Override
+	public void setUp() throws Exception {
+		testHelper.closeWelcomePage();
+		super.setUp();
+	}
 
 	protected void assertDocumentContains(XtextEditor editor, String expectedContent) throws CoreException {
 		String editorContent = editor.getDocument().get();

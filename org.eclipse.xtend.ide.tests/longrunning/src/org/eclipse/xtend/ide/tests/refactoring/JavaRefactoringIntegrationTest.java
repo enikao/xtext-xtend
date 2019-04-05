@@ -16,18 +16,49 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.xtend.ide.tests.WorkbenchTestHelper;
 import org.eclipse.xtext.ui.editor.XtextEditor;
+import org.eclipse.xtext.xbase.lib.Extension;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+
+import com.google.inject.Inject;
 
 /**
  * @author Jan Koehnlein - Initial contribution and API
  */
 public class JavaRefactoringIntegrationTest extends AbstractXtendRenameRefactoringTest {
 
+	@Inject @Extension
+	protected WorkbenchTestHelper testHelper;
+	
+	@Rule
+	public TestName testName = new TestName();
+	
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		System.out.println(testName.getMethodName());
+		IProject project = testHelper.getProject();
+		if (project != null) {
+			project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		}
+		IEditorReference[] editorReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+		System.out.println("setup: " + editorReferences.length);
+		super.setUp();
+	}
+
 	@After
 	public void deleteFilesCreatedByTest() throws Exception {
+		testHelper.closeAllEditors(false);
+		IEditorReference[] editorReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+		System.out.println("teardown" + editorReferences.length);
 		IProject project = testHelper.getProject();
 		IFolder folder = project.getFolder("src");
 		folder.accept((IResource resource) -> {
