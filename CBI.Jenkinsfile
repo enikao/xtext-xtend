@@ -97,21 +97,13 @@ spec:
 
     stage('Gradle Build') {
       steps {
-        sh "./1-gradle-build.sh"
-        step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/test/*.xml'])
+        sh "./1-gradle-build.sh -x test"
+        // step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/test/*.xml'])
       }
     }
 
     stage('Maven Build & Test') {
       stages { // TODO use of parallel { here kills Tycho process with OOM
-        stage('Maven Plugin Build') {
-          steps {
-            sh """
-              ./2-maven-plugin-build.sh -s /home/jenkins/.m2/settings.xml --local-repository=/home/jenkins/.m2/repository
-            """
-            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
-          } // END steps
-        } // END stage
         stage('Maven Tycho Build') {
           steps {
             sh """
@@ -129,6 +121,14 @@ spec:
             step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/longrunningTest/*.xml'])
           }
         } // END stage
+        stage('Maven Plugin Build') {
+          steps {
+            sh """
+              ./2-maven-plugin-build.sh -s /home/jenkins/.m2/settings.xml --local-repository=/home/jenkins/.m2/repository
+            """
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
+          } // END steps
+        } // END stage
       } // END parallel
     } // END stage
   } // END stages
@@ -138,7 +138,7 @@ spec:
       archiveArtifacts artifacts: 'build/**'
     }
     failure {
-      archiveArtifacts artifacts: 'org.eclipse.xtend.ide.swtbot.tests/screenshots/**, build/**, **/target/work/data/.metadata/.log, **/hs_err_pid*.log'
+      archiveArtifacts artifacts: 'org.eclipse.xtend.ide.swtbot.tests/screenshots/**, build/**, **/target/work/**, **/hs_err_pid*.log, , **/target/surefire.properties'
     }
     changed {
       script {

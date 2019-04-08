@@ -35,6 +35,28 @@
 					</execution>
 				</executions>
 			</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>all-stable</id>
+							<configuration>
+								<excludes>
+									<exclude>**/JavaRefactoringIntegrationTest.java</exclude></excludes>
+							</configuration>
+						</execution>
+						<execution>
+							<id>flaky</id>
+							<configuration>
+								<includes>
+									<include>**/JavaRefactoringIntegrationTest.java</include></includes>
+								<forkedProcessTimeoutInSeconds>60</forkedProcessTimeoutInSeconds>
+								<testFailureIgnore>true</testFailureIgnore>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 		</plugins>
 	</build>
 

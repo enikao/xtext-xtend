@@ -9,4 +9,5 @@ fi
   -PuseJenkinsSnapshots=true \
   -PJENKINS_URL=$JENKINS_URL \
   -PignoreTestFailures=true \
+  -i \
   $@
