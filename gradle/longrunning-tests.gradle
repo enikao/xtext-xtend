@@ -51,4 +51,7 @@ task longrunningTest(type: Test) {
 
 test {
 	exclude '**/*Suite.class'
+	afterTest { desc, result -> 
+		logger.quiet "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+	}
 }

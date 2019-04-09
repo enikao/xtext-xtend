@@ -2,7 +2,7 @@ pipeline {
   agent {
     kubernetes {
       label 'xtext-build-pod'
-      defaultContainer 'xtext-buildenv'
+      defaultContainer 'xtext-buildenv-1'
       yaml '''
 apiVersion: v1
 kind: Pod
@@ -14,9 +14,54 @@ spec:
     volumeMounts:
     - mountPath: /home/jenkins/.ssh
       name: volume-known-hosts
-  - name: xtext-buildenv
+  - name: xtext-buildenv-1
     image: docker.io/smoht/xtext-buildenv:0.7
     tty: true
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "2"
+      requests:
+        memory: "4Gi"
+        cpu: "1"
+    volumeMounts:
+    - name: settings-xml
+      mountPath: /home/jenkins/.m2/settings.xml
+      subPath: settings.xml
+      readOnly: true
+    - name: m2-repo
+      mountPath: /home/jenkins/.m2/repository
+    - name: volume-known-hosts
+      mountPath: /home/jenkins/.ssh
+  - name: xtext-buildenv-2
+    image: docker.io/smoht/xtext-buildenv:0.7
+    tty: true
+    resources:
+      limits:
+        memory: "2Gi"
+        cpu: "2"
+      requests:
+        memory: "1.5Gi"
+        cpu: "1"
+    volumeMounts:
+    - name: settings-xml
+      mountPath: /home/jenkins/.m2/settings.xml
+      subPath: settings.xml
+      readOnly: true
+    - name: m2-repo
+      mountPath: /home/jenkins/.m2/repository
+    - name: volume-known-hosts
+      mountPath: /home/jenkins/.ssh
+  - name: xtext-buildenv-3
+    image: docker.io/smoht/xtext-buildenv:0.7
+    tty: true
+    resources:
+      limits:
+        memory: "2Gi"
+        cpu: "2"
+      requests:
+        memory: "1Gi"
+        cpu: "0.2"
     volumeMounts:
     - name: settings-xml
       mountPath: /home/jenkins/.m2/settings.xml
@@ -97,36 +142,42 @@ spec:
 
     stage('Gradle Build') {
       steps {
-        sh "./1-gradle-build.sh"
-        step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/test/*.xml'])
+        sh "./1-gradle-build.sh -x test"
+        // step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/test/*.xml'])
       }
     }
 
     stage('Maven Build & Test') {
-      stages { // TODO use of parallel { here kills Tycho process with OOM
+      parallel { // TODO use of parallel { here kills Tycho process with OOM
         stage('Maven Plugin Build') {
           steps {
+            container('xtext-buildenv-3') {
             sh """
               ./2-maven-plugin-build.sh -s /home/jenkins/.m2/settings.xml --local-repository=/home/jenkins/.m2/repository
             """
             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
+            }
           } // END steps
         } // END stage
         stage('Maven Tycho Build') {
           steps {
+            container('xtext-buildenv-1') {
             sh """
               /home/vnc/.vnc/xstartup.sh
               ./3-maven-tycho-build.sh -s /home/jenkins/.m2/settings.xml --tp=${params.TARGET_PLATFORM} --local-repository=/home/jenkins/.m2/repository
             """
             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
+            }
           }// END steps
         } // END stage
         
         stage('Gradle Longrunning Tests') {
           steps {
+            container('xtext-buildenv-2') {
             sh "echo 'Gradle Longrunning Tests'"
             sh "./gradlew longrunningTest -PuseJenkinsSnapshots=true -PJENKINS_URL=$JENKINS_URL -PignoreTestFailures=true --continue"
             step([$class: 'JUnitResultArchiver', testResults: '**/build/test-results/longrunningTest/*.xml'])
+            }
           }
         } // END stage
       } // END parallel
