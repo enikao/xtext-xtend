@@ -24,9 +24,10 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.xtend.ide.internal.XtendActivator;
 import org.eclipse.xtend.ide.tests.WorkbenchTestHelper;
-import org.eclipse.xtext.ui.testing.AbstractEditorTest;
 import org.eclipse.xtext.ui.editor.XtextEditor;
+import org.eclipse.xtext.ui.testing.AbstractEditorTest;
 import org.eclipse.xtext.xbase.ui.editor.AbstractJvmElementHandler;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.Inject;
@@ -75,6 +76,7 @@ public class ShowHierarchyTest extends AbstractEditorTest {
 		assertEquals("bar", invokeTestingHandler(xtextEditor, COMMAND_ID).getResolvedTypeName());
 	}
 
+	@Ignore ("see https://github.com/eclipse/xtext-xtend/issues/780")
 	@Test public void testOpenTypeHierarchyOnCollectionsLiterals() throws Exception {
 		XtextEditor xtextEditor = openEditor("package foo class Foo { def bar(String a) { newArr|ayList() }");
 		assertEquals("newArrayList", invokeTestingHandler(xtextEditor, COMMAND_ID).getResolvedTypeName());
