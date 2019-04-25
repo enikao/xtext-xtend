@@ -1761,7 +1761,7 @@ public class JavaConverterTest extends AbstractXtendTestCase {
     _builder.newLine();
     Assert.assertEquals(
       "public String someVar=\".\"\npublic String loadingURI=\'\'\'classpath:/«(\'\'\'«someVar»LoadingResourceWithError\'\'\').replace(Character.valueOf(\'.\').charValue, Character.valueOf(\'/\').charValue)».xtexterror\'\'\'", 
-      this.toXtendClassBodyDeclr(_builder));
+      Strings.toUnixLineSeparator(this.toXtendClassBodyDeclr(_builder)));
   }
   
   @Test
